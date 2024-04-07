@@ -15,7 +15,15 @@
  */
 package com.google.mediapipe.examples.gesturerecognizer
 
+import android.app.Activity
+import android.os.Build
+import android.view.Window
+import android.view.WindowManager
+import androidx.core.app.NotificationCompat.getColor
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import com.google.auto.value.extension.AutoValueExtension.Context
+import com.kroy.gesturerecognition.R
 
 interface CameraPermissionCallback {
     fun onCameraPermissionGranted()
@@ -24,6 +32,15 @@ interface CameraPermissionCallback {
 
 
 class MainViewModel : ViewModel() {
+
+     fun changeStatusBarColor(activity: Activity, colorResId: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val window: Window = activity.window
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.statusBarColor = ContextCompat.getColor(activity, colorResId)
+        }
+    }
+
     private var _delegate: Int = GestureRecognizerHelper.DELEGATE_CPU
     private var _minHandDetectionConfidence: Float =
         GestureRecognizerHelper.DEFAULT_HAND_DETECTION_CONFIDENCE

@@ -2,10 +2,13 @@ package com.kroy.gesturerecognition
 
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.camera.core.AspectRatio
@@ -14,11 +17,10 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.R
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.navigation.Navigation
+
 import com.google.mediapipe.examples.gesturerecognizer.GestureRecognizerHelper
 import com.google.mediapipe.examples.gesturerecognizer.MainViewModel
 import com.google.mediapipe.tasks.vision.core.RunningMode
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
     private lateinit var activityMainBinding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private lateinit var gestureRecognizerHelper: GestureRecognizerHelper
+    private  var  isGesture: Boolean  =false
 //    private val gestureRecognizerResultAdapter: GestureRecognizerResultsAdapter by lazy {
 //        GestureRecognizerResultsAdapter().apply {
 //            updateAdapterSize(defaultNumResults)
@@ -51,9 +54,17 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
         super.onCreate(savedInstanceState)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
+        viewModel.changeStatusBarColor(this@MainActivity,R.color.hand_line_color)
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
         checkCameraPermission()
+        activityMainBinding.gestureSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            isGesture = isChecked
+            val trackColor = if (isChecked) Color.GREEN else Color.RED
+            activityMainBinding.gestureSwitch.trackTintList = ColorStateList.valueOf(trackColor)
+
+        }
+
 
 
 
@@ -81,17 +92,7 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
                 setUpCamera()
                 // Create the Hand Gesture Recognition Helper that will handle the
                 // inference
-                backgroundExecutor.execute {
-                    gestureRecognizerHelper = GestureRecognizerHelper(
-                        context = this,
-                        runningMode = RunningMode.LIVE_STREAM,
-                        minHandDetectionConfidence = viewModel.currentMinHandDetectionConfidence,
-                        minHandTrackingConfidence = viewModel.currentMinHandTrackingConfidence,
-                        minHandPresenceConfidence = viewModel.currentMinHandPresenceConfidence,
-                        currentDelegate = viewModel.currentDelegate,
-                        gestureRecognizerListener = this
-                    )
-                }
+               setUpGestureRecognizer()
             }
 
         }
@@ -111,17 +112,7 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
                     setUpCamera()
                     // Create the Hand Gesture Recognition Helper that will handle the
                     // inference
-                    backgroundExecutor.execute {
-                        gestureRecognizerHelper = GestureRecognizerHelper(
-                            context = this,
-                            runningMode = RunningMode.LIVE_STREAM,
-                            minHandDetectionConfidence = viewModel.currentMinHandDetectionConfidence,
-                            minHandTrackingConfidence = viewModel.currentMinHandTrackingConfidence,
-                            minHandPresenceConfidence = viewModel.currentMinHandPresenceConfidence,
-                            currentDelegate = viewModel.currentDelegate,
-                            gestureRecognizerListener = this
-                        )
-                    }
+                  setUpGestureRecognizer()
                 }
 
             } else {
@@ -133,19 +124,24 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
 
     override fun onResume() {
         super.onResume()
-        //TODO() - Check permission for camera
+        setUpGestureRecognizer()
 
-
-
-
-
-        // Start the GestureRecognizerHelper again when users come back
-        // to the foreground.
-//        backgroundExecutor.execute {
-//            if (gestureRecognizerHelper.isClosed()) {
-//                gestureRecognizerHelper.setupGestureRecognizer()
-//            }
-//        }
+    }
+    private fun setUpGestureRecognizer(){
+//
+//         Start the GestureRecognizerHelper again when users come back
+//         to the foreground.
+        backgroundExecutor.execute {
+            gestureRecognizerHelper = GestureRecognizerHelper(
+                context = this,
+                runningMode = RunningMode.LIVE_STREAM,
+                minHandDetectionConfidence = viewModel.currentMinHandDetectionConfidence,
+                minHandTrackingConfidence = viewModel.currentMinHandTrackingConfidence,
+                minHandPresenceConfidence = viewModel.currentMinHandPresenceConfidence,
+                currentDelegate = viewModel.currentDelegate,
+                gestureRecognizerListener = this
+            )
+        }
     }
 
     override fun onPause() {
@@ -254,20 +250,62 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
 
     override fun onResults(resultBundle: GestureRecognizerHelper.ResultBundle) {
         runOnUiThread {
-            if (resultBundle!=null) {
-                val gestureCategories = resultBundle.results.first().gestures()
+            val gestureCategories = resultBundle.results.first().gestures()
+            val landmark =   resultBundle.results.first().worldLandmarks()
+            if (gestureCategories!=null && landmark.isNotEmpty()) {
 
-                // Pass necessary information to OverlayView for drawing on the canvas
-                activityMainBinding.overlay.setResults(
-                    resultBundle.results.first(),
-                    resultBundle.inputImageHeight,
-                    resultBundle.inputImageWidth,
-                    RunningMode.LIVE_STREAM
-                )
 
-                // Force a redraw
-                activityMainBinding.overlay.invalidate()
+                val category = gestureCategories.getOrNull(0)?.getOrNull(0)?.categoryName()
+
+                val wristPoint = landmark.first()[0]
+                if(!isGesture){
+                    activityMainBinding.gestureText.text = wristPoint.toString()
+                    activityMainBinding.gestureImage.visibility = View.GONE
+                }else{
+
+                    when(category){
+                        "Pointing_Up"->{
+                            activityMainBinding.gestureImage.visibility = View.VISIBLE
+                            activityMainBinding.gestureText.text = category
+                            activityMainBinding.gestureImage.setImageResource(R.drawable.img_1)
+                        }
+                        "Victory"->{
+                            activityMainBinding.gestureImage.visibility = View.VISIBLE
+                            activityMainBinding.gestureText.text = category
+                            activityMainBinding.gestureImage.setImageResource(R.drawable.img_2)
+                        }
+                        "Thumb_Up"->{
+                            activityMainBinding.gestureImage.visibility = View.VISIBLE
+                            activityMainBinding.gestureText.text = category
+                            activityMainBinding.gestureImage.setImageResource(R.drawable.img_3)
+                        }
+                        "Thumb_Down"-> {
+                            activityMainBinding.gestureImage.visibility = View.VISIBLE
+                            activityMainBinding.gestureText.text = category
+                            activityMainBinding.gestureImage.setImageResource(R.drawable.img_4)
+                        }
+                    }
+
+                }
+
+
+                Log.d("Gesture checks -> ","$category")
+
+                Log.d("Gesture landmark-> ","$wristPoint")
+
+
             }
+
+            // Pass necessary information to OverlayView for drawing on the canvas
+            activityMainBinding.overlay.setResults(
+                resultBundle.results.first(),
+                resultBundle.inputImageHeight,
+                resultBundle.inputImageWidth,
+                RunningMode.LIVE_STREAM
+            )
+
+            // Force a redraw
+            activityMainBinding.overlay.invalidate()
         }
     }
 

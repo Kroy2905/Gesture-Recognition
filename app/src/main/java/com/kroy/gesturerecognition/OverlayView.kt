@@ -66,23 +66,29 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         results?.let { gestureRecognizerResult ->
-            for(landmark in gestureRecognizerResult.landmarks()) {
-                for(normalizedLandmark in landmark) {
-                    canvas.drawPoint(
-                        normalizedLandmark.x() * imageWidth * scaleFactor,
-                        normalizedLandmark.y() * imageHeight * scaleFactor,
-                        pointPaint)
-                }
 
-                HandLandmarker.HAND_CONNECTIONS.forEach {
-                    canvas.drawLine(
-                        gestureRecognizerResult.landmarks().get(0).get(it!!.start()).x() * imageWidth * scaleFactor,
-                        gestureRecognizerResult.landmarks().get(0).get(it.start()).y() * imageHeight * scaleFactor,
-                        gestureRecognizerResult.landmarks().get(0).get(it.end()).x() * imageWidth * scaleFactor,
-                        gestureRecognizerResult.landmarks().get(0).get(it.end()).y() * imageHeight * scaleFactor,
-                        linePaint)
+            if(gestureRecognizerResult.landmarks().isNotEmpty()){
+                for(landmark in gestureRecognizerResult.landmarks()) {
+                    for(normalizedLandmark in landmark) {
+                        canvas.drawPoint(
+                            normalizedLandmark.x() * imageWidth * scaleFactor,
+                            normalizedLandmark.y() * imageHeight * scaleFactor,
+                            pointPaint)
+                    }
+
+                    HandLandmarker.HAND_CONNECTIONS.forEach {
+                        canvas.drawLine(
+                            gestureRecognizerResult.landmarks().get(0).get(it!!.start()).x() * imageWidth * scaleFactor,
+                            gestureRecognizerResult.landmarks().get(0).get(it.start()).y() * imageHeight * scaleFactor,
+                            gestureRecognizerResult.landmarks().get(0).get(it.end()).x() * imageWidth * scaleFactor,
+                            gestureRecognizerResult.landmarks().get(0).get(it.end()).y() * imageHeight * scaleFactor,
+                            linePaint)
+                    }
                 }
+            }else{
+                invalidate()
             }
+
         }
     }
 
