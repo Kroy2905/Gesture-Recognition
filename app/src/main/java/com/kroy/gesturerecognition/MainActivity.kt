@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
         checkCameraPermission()
         activityMainBinding.gestureSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             isGesture = isChecked
+            OverlayView.isGestureMode = isGesture
             val trackColor = if (isChecked) Color.GREEN else Color.RED
             activityMainBinding.gestureSwitch.trackTintList = ColorStateList.valueOf(trackColor)
 
@@ -262,6 +263,8 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
                 if(!isGesture){
                     activityMainBinding.gestureText.text = wristPoint.toString()
                     activityMainBinding.gestureImage.visibility = View.GONE
+                    OverlayView.drawable = R.drawable.wrist_point_img
+
                 }else{
 
                     when(category){

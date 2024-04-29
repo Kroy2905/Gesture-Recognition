@@ -23,6 +23,7 @@ import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.google.mediapipe.tasks.vision.core.RunningMode
@@ -70,52 +71,79 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         super.draw(canvas)
         results?.let { gestureRecognizerResult ->
             if (gestureRecognizerResult.landmarks().isNotEmpty()) {
-                // Loop through each hand's landmarks
-                for (landmark in gestureRecognizerResult.landmarks()) {
-                    // Draw for each normalized landmark
-                    for (i in landmark.indices) {
-                        val normalizedLandmark = landmark[i]
+                try{
+                    for (landmark in gestureRecognizerResult.landmarks()) {
+                        for (i in landmark.indices) {
+                            val normalizedLandmark = landmark[i]
 
-                        if (i == 0) { // First normalized landmark
-                            // Draw a custom image (assuming you have a Bitmap or Drawable to draw)
-                            val bitmap = getCustomImage(context, drawable) // Function to get your desired image
-                            val x = normalizedLandmark.x() * imageWidth * scaleFactor
-                            val y = normalizedLandmark.y() * imageHeight * scaleFactor
+                            if (i == 0) { // First normalized landmark
+                                val originalBitmap = getCustomImage(context, drawable)
 
-                            canvas.drawBitmap(
-                                bitmap,
-                                x - (bitmap.width / 2),
-                                y - (bitmap.height / 2),
-                                null
-                            )
-                        } else {
-                            // Draw simple points for the other landmarks
-                            canvas.drawPoint(
-                                normalizedLandmark.x() * imageWidth * scaleFactor,
-                                normalizedLandmark.y() * imageHeight * scaleFactor,
-                                pointPaint
-                            )
+                                // Define the zoom scale factor based on the z-coordinate
+                                val zoomFactor =  (normalizedLandmark.z() *  100000000) / 22 // Modify to achieve the desired effect
+                                Log.d("zoom factor->","${normalizedLandmark.z() * 100000000}")
+
+                                val scaledBitmap = Bitmap.createScaledBitmap(
+                                    originalBitmap,
+                                    (originalBitmap.width * zoomFactor).toInt(),
+                                    (originalBitmap.height * zoomFactor).toInt(),
+                                    true
+                                )
+
+                                val x = normalizedLandmark.x() * imageWidth * scaleFactor
+                                val y = normalizedLandmark.y() * imageHeight * scaleFactor
+
+                                // Draw the scaled bitmap, centering it on the normalized landmark
+                                if(isGestureMode){
+                                    canvas.drawBitmap(
+                                        originalBitmap,
+                                        x - (originalBitmap.width / 2),
+                                        y - (originalBitmap.height / 2),
+                                        null
+                                    )
+                                }else{
+                                    canvas.drawBitmap(
+                                        scaledBitmap,
+                                        x - (scaledBitmap.width / 2),
+                                        y - (scaledBitmap.height / 2),
+                                        null
+                                    )
+                                }
+
+                            } else {
+                                // Draw simple points for other landmarks
+                                canvas.drawPoint(
+                                    normalizedLandmark.x() * imageWidth * scaleFactor,
+                                    normalizedLandmark.y() * imageHeight * scaleFactor,
+                                    pointPaint
+                                )
+                            }
+                        }
+
+                        // Draw connections between landmarks (optional, depending on visualization needs)
+                        HandLandmarker.HAND_CONNECTIONS.forEach { connection ->
+                            if (connection != null) {
+                                canvas.drawLine(
+                                    landmark[connection.start()].x() * imageWidth * scaleFactor,
+                                    landmark[connection.start()].y() * imageHeight * scaleFactor,
+                                    landmark[connection.end()].x() * imageWidth * scaleFactor,
+                                    landmark[connection.end()].y() * imageHeight * scaleFactor,
+                                    linePaint
+                                )
+                            }
                         }
                     }
-
-                    // Draw connections between landmarks (you can still maintain this logic)
-                    HandLandmarker.HAND_CONNECTIONS.forEach { connection ->
-                        if (connection != null) {
-                            canvas.drawLine(
-                                landmark[connection.start()].x() * imageWidth * scaleFactor,
-                                landmark[connection.start()].y() * imageHeight * scaleFactor,
-                                landmark[connection.end()].x() * imageWidth * scaleFactor,
-                                landmark[connection.end()].y() * imageHeight * scaleFactor,
-                                linePaint
-                            )
-                        }
-                    }
+                }catch (e:Exception){
+                    e.printStackTrace()
                 }
+
+
             } else {
-                invalidate() // Refresh the view
+                invalidate() // Refresh the view if no landmarks are detected
             }
         }
     }
+
     fun getCustomImage(context: Context, drawableResId: Int): Bitmap {
         val drawable: Drawable = ContextCompat.getDrawable(context, drawableResId) ?: throw IllegalArgumentException("Drawable not found")
 
@@ -135,35 +163,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         return bitmap
     }
 
-
-//    override fun draw(canvas: Canvas) {
-//        super.draw(canvas)
-//        results?.let { gestureRecognizerResult ->
-//
-//            if(gestureRecognizerResult.landmarks().isNotEmpty()){
-//                for(landmark in gestureRecognizerResult.landmarks()) {
-//                    for(normalizedLandmark in landmark) {
-//                        canvas.drawPoint(
-//                            normalizedLandmark.x() * imageWidth * scaleFactor,
-//                            normalizedLandmark.y() * imageHeight * scaleFactor,
-//                            pointPaint)
-//                    }
-//
-//                    HandLandmarker.HAND_CONNECTIONS.forEach {
-//                        canvas.drawLine(
-//                            gestureRecognizerResult.landmarks().get(0).get(it!!.start()).x() * imageWidth * scaleFactor,
-//                            gestureRecognizerResult.landmarks().get(0).get(it.start()).y() * imageHeight * scaleFactor,
-//                            gestureRecognizerResult.landmarks().get(0).get(it.end()).x() * imageWidth * scaleFactor,
-//                            gestureRecognizerResult.landmarks().get(0).get(it.end()).y() * imageHeight * scaleFactor,
-//                            linePaint)
-//                    }
-//                }
-//            }else{
-//                invalidate()
-//            }
-//
-//        }
-//    }
 
     fun setResults(
         gestureRecognizerResult: GestureRecognizerResult,
@@ -193,6 +192,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     companion object {
         private const val LANDMARK_STROKE_WIDTH = 8F
-        var drawable :Int = R.drawable.handlogo
+        var drawable :Int = R.drawable.wrist_point_img
+        var isGestureMode : Boolean = false
     }
 }
