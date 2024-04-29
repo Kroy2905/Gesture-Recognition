@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat
 
 import com.google.mediapipe.examples.gesturerecognizer.GestureRecognizerHelper
 import com.google.mediapipe.examples.gesturerecognizer.MainViewModel
+import com.google.mediapipe.examples.gesturerecognizer.OverlayView
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.kroy.gesturerecognition.databinding.ActivityMainBinding
 import java.util.concurrent.ExecutorService
@@ -265,24 +266,28 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
 
                     when(category){
                         "Pointing_Up"->{
-                            activityMainBinding.gestureImage.visibility = View.VISIBLE
+                            //activityMainBinding.gestureImage.visibility = View.VISIBLE
                             activityMainBinding.gestureText.text = category
                             activityMainBinding.gestureImage.setImageResource(R.drawable.img_1)
+                            OverlayView.drawable = R.drawable.img_1
                         }
                         "Victory"->{
-                            activityMainBinding.gestureImage.visibility = View.VISIBLE
+                         //   activityMainBinding.gestureImage.visibility = View.VISIBLE
                             activityMainBinding.gestureText.text = category
                             activityMainBinding.gestureImage.setImageResource(R.drawable.img_2)
+                            OverlayView.drawable = R.drawable.img_2
                         }
                         "Thumb_Up"->{
-                            activityMainBinding.gestureImage.visibility = View.VISIBLE
+                           // activityMainBinding.gestureImage.visibility = View.VISIBLE
                             activityMainBinding.gestureText.text = category
                             activityMainBinding.gestureImage.setImageResource(R.drawable.img_3)
+                            OverlayView.drawable = R.drawable.img_3
                         }
                         "Thumb_Down"-> {
-                            activityMainBinding.gestureImage.visibility = View.VISIBLE
+                          //  activityMainBinding.gestureImage.visibility = View.VISIBLE
                             activityMainBinding.gestureText.text = category
                             activityMainBinding.gestureImage.setImageResource(R.drawable.img_4)
+                            OverlayView.drawable = R.drawable.img_4
                         }
                     }
 
