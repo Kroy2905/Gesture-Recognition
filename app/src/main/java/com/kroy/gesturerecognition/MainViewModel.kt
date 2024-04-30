@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.gesturerecognizer
+package com.kroy.gesturerecognition
 
 import android.app.Activity
 import android.os.Build
 import android.view.Window
 import android.view.WindowManager
-import androidx.core.app.NotificationCompat.getColor
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import com.google.auto.value.extension.AutoValueExtension.Context
-import com.kroy.gesturerecognition.R
+import com.kroy.gesturerecognition.GestureRecognizerHelper
 
 interface CameraPermissionCallback {
     fun onCameraPermissionGranted()

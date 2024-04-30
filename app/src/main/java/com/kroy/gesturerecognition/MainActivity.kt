@@ -21,9 +21,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-import com.google.mediapipe.examples.gesturerecognizer.GestureRecognizerHelper
-import com.google.mediapipe.examples.gesturerecognizer.MainViewModel
-import com.google.mediapipe.examples.gesturerecognizer.OverlayView
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.kroy.gesturerecognition.databinding.ActivityMainBinding
 import java.util.concurrent.ExecutorService
@@ -252,12 +249,17 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
 
     override fun onResults(resultBundle: GestureRecognizerHelper.ResultBundle) {
         runOnUiThread {
+
             val gestureCategories = resultBundle.results.first().gestures()
+            val handedness = resultBundle.results.first().handednesses()
+            Log.d("handedness->","${handedness.size}")
+            Log.d("gestures->","${gestureCategories}")
+            val handsPresnt = handedness.size
             val landmark =   resultBundle.results.first().worldLandmarks()
             if (gestureCategories!=null && landmark.isNotEmpty()) {
 
 
-                val category = gestureCategories.getOrNull(0)?.getOrNull(0)?.categoryName()
+
 
                 val wristPoint = landmark.first()[0]
                 if(!isGesture){
@@ -266,40 +268,59 @@ class MainActivity : AppCompatActivity(), GestureRecognizerHelper.GestureRecogni
                     OverlayView.drawable = R.drawable.wrist_point_img
 
                 }else{
+                    if(handsPresnt == 1 ){
+                        val category = gestureCategories.getOrNull(0)?.getOrNull(0)?.categoryName()
 
-                    when(category){
-                        "Pointing_Up"->{
-                            //activityMainBinding.gestureImage.visibility = View.VISIBLE
-                            activityMainBinding.gestureText.text = category
-                            activityMainBinding.gestureImage.setImageResource(R.drawable.img_1)
-                            OverlayView.drawable = R.drawable.img_1
+                        when(category){
+                            "Pointing_Up"->{
+                                //activityMainBinding.gestureImage.visibility = View.VISIBLE
+                                activityMainBinding.gestureText.text = category
+                                activityMainBinding.gestureImage.setImageResource(R.drawable.img_1)
+                                OverlayView.drawable = R.drawable.img_1
+                            }
+                            "Victory"->{
+                                //   activityMainBinding.gestureImage.visibility = View.VISIBLE
+                                activityMainBinding.gestureText.text = category
+                                activityMainBinding.gestureImage.setImageResource(R.drawable.img_2)
+                                OverlayView.drawable = R.drawable.img_2
+                            }
+                            "Thumb_Up"->{
+                                // activityMainBinding.gestureImage.visibility = View.VISIBLE
+                                activityMainBinding.gestureText.text = category
+                                activityMainBinding.gestureImage.setImageResource(R.drawable.img_3)
+                                OverlayView.drawable = R.drawable.img_3
+                            }
+                            "Thumb_Down"-> {
+                                //  activityMainBinding.gestureImage.visibility = View.VISIBLE
+                                activityMainBinding.gestureText.text = category
+                                activityMainBinding.gestureImage.setImageResource(R.drawable.img_4)
+                                OverlayView.drawable = R.drawable.img_4
+                            }
                         }
-                        "Victory"->{
-                         //   activityMainBinding.gestureImage.visibility = View.VISIBLE
-                            activityMainBinding.gestureText.text = category
-                            activityMainBinding.gestureImage.setImageResource(R.drawable.img_2)
-                            OverlayView.drawable = R.drawable.img_2
+                    }else if(handsPresnt == 2){
+                        val gesture1 = gestureCategories.getOrNull(0)?.getOrNull(0)?.categoryName()
+                        val gesture2 =  gestureCategories.getOrNull(1)?.getOrNull(0)?.categoryName()
+                        Log.d("Two hand gesture->","Gesture 1 = $gesture1 , gesture2 = $gesture2")
+                        if((gesture1 == "Open_Palm" && gesture2 == "Victory")
+                            || ((gesture1 == "Victory" && gesture2 == "Open_Palm"))){
+                            // 7 gesture
+                            activityMainBinding.gestureText.text = "Seven"
+
+                            OverlayView.drawable = R.drawable.img_7
+
                         }
-                        "Thumb_Up"->{
-                           // activityMainBinding.gestureImage.visibility = View.VISIBLE
-                            activityMainBinding.gestureText.text = category
-                            activityMainBinding.gestureImage.setImageResource(R.drawable.img_3)
-                            OverlayView.drawable = R.drawable.img_3
-                        }
-                        "Thumb_Down"-> {
-                          //  activityMainBinding.gestureImage.visibility = View.VISIBLE
-                            activityMainBinding.gestureText.text = category
-                            activityMainBinding.gestureImage.setImageResource(R.drawable.img_4)
-                            OverlayView.drawable = R.drawable.img_4
+                        else if(gesture1 == "Open_Palm" && gesture2 == "Open_Palm"){
+                            activityMainBinding.gestureText.text = "Ten"
+
+                            OverlayView.drawable = R.drawable.img_10
                         }
                     }
+
 
                 }
 
 
-                Log.d("Gesture checks -> ","$category")
 
-                Log.d("Gesture landmark-> ","$wristPoint")
 
 
             }

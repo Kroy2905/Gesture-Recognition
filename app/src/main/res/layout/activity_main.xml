@@ -14,7 +14,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:scaleType="fillStart" />
 
-    <com.google.mediapipe.examples.gesturerecognizer.OverlayView
+    <com.kroy.gesturerecognition.OverlayView
         android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

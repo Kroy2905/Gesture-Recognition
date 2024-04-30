@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.gesturerecognizer
+package com.kroy.gesturerecognition
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -29,7 +29,6 @@ import androidx.core.content.ContextCompat
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.gesturerecognizer.GestureRecognizerResult
 import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarker
-import com.kroy.gesturerecognition.R
 import kotlin.math.max
 import kotlin.math.min
 

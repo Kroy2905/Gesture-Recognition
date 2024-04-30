@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.gesturerecognizer
+package com.kroy.gesturerecognition
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.os.SystemClock
 import android.util.Log
 import androidx.annotation.VisibleForTesting
@@ -80,6 +78,7 @@ class GestureRecognizerHelper(
             val optionsBuilder =
                 GestureRecognizer.GestureRecognizerOptions.builder()
                     .setBaseOptions(baseOptions)
+                    .setNumHands(2)
                     .setMinHandDetectionConfidence(minHandDetectionConfidence)
                     .setMinTrackingConfidence(minHandTrackingConfidence)
                     .setMinHandPresenceConfidence(minHandPresenceConfidence)
@@ -173,7 +172,7 @@ class GestureRecognizerHelper(
         val finishTimeMs = SystemClock.uptimeMillis()
         val inferenceTime = finishTimeMs - result.timestampMs()
 
-        gestureRecognizerListener?.onResults(
+        gestureRecognizerListener?.onResults(   // sends the mediapipe response using an interface
             ResultBundle(
                 listOf(result), inferenceTime, input.height, input.width
             )
