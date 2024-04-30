@@ -9,6 +9,9 @@ switch to toggle between hand landmark detection and gesture recognition mode.A 
 - Predefined set of gestures that the app can recognize.
 - Toggling between hand landmark detection and Gesture recognition 
 - Simple and intuitive user interface.
+- Movement of image w.r.t wrist coordinates
+- Multi hand  gesture detection ( e.g. - Showing 7 and 10 fingers will be detected )
+  
 
 ## Installation
 1. Clone this repository to your local machine.
@@ -28,7 +31,29 @@ switch to toggle between hand landmark detection and gesture recognition mode.A 
 
 ## Demo video :
 
-https://github.com/Kroy2905/Gesture-Recognition/assets/67234728/f33432f2-0653-407c-82af-6fb09d3d58a0
+**TASK 1 :**
+- Movement of image with respect to wrist location
+- zoom in and zoom out feature 
+
+
+https://github.com/Kroy2905/Gesture-Recognition/assets/67234728/f1e5e6be-666c-43cd-aa63-e9d3c6abd93f
+
+**TASK 2 :**
+- Movement of image with respect to wrist location
+- Multi hand gesture detection
+- No single hand  gesture detection when both hands are visible
+  Note - Zoom in/out feature is disabled during gesture recogntion 
+
+
+https://github.com/Kroy2905/Gesture-Recognition/assets/67234728/6b5a959a-8375-464c-9d3e-64f9c42658fa
+
+
+
+
+
+
+
+
 
 
 
