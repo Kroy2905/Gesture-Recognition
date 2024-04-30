@@ -23,7 +23,7 @@ switch to toggle between hand landmark detection and gesture recognition mode.A 
 5. The app will recognize and interpret the gestures in real-time.
 6. Use the app's interface to interact with the recognized gestures.
 
-## APK link - https://drive.google.com/file/d/1IU8Sf8S7bzs4rUeVP29DUJFqL6pDWtwR/view?usp=sharing
+## APK link - [https://drive.google.com/file/d/1IU8Sf8S7bzs4rUeVP29DUJFqL6pDWtwR/view?usp=sharing](https://drive.google.com/file/d/15xV4S-tJGjquG-GAnrJEds5OOBUJZQFp/view?usp=sharing)
 
 
 ## Demo video :
